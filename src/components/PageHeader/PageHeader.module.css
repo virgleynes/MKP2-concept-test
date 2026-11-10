@@ -1,0 +1,27 @@
+.sentinel {
+  position: absolute;
+  top: 0;
+  height: 1px;
+  width: 100%;
+  pointer-events: none;
+}
+
+.root {
+  background-color: var(--color-container-background-primary);
+  padding: var(--space-medium) var(--space-large);
+  position: sticky;
+  top: 0;
+  gap: var(--space-medium);
+  z-index: 10000;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.stuck {
+  border-bottom-color: var(--color-container-border-primary);
+}
+
+.breadcrumb a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+}

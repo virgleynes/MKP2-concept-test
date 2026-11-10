@@ -1,0 +1,17 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 540px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+pre {
+  display: inline-block;
+  font-size: 12px;
+  background-color: var(--color-container-background-tertiary);
+  font-family: monospace;
+}

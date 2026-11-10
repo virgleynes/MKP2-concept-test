@@ -1,0 +1,20 @@
+import { createRoot } from "react-dom/client";
+import "./normalize.css";
+import "bench-shells/styles.css";
+import "./index.css";
+import "@ids-ts/button/dist/main.css";
+import "@ids-ts/dropdown/dist/main.css";
+import "@ids-ts/dropdown-button/dist/main.css";
+import "@ids-ts/table/dist/main.css";
+import "@ids-ts/tabs/dist/main.css";
+import "@ids-ts/pagination/dist/main.css";
+import "@ids-ts/checkbox/dist/main.css";
+import "@ids-ts/cards/dist/main.css";
+import "@ids-ts/typography/dist/main.css";
+import "@ids-ts/badge/dist/main.css";
+import "@ids-ts/link/dist/main.css";
+import "@ids-ts/carousel/dist/main.css";
+import "@genux-ds/suggestion-chip/dist/main.css";
+import App from "./App.tsx";
+
+createRoot(document.getElementById("root")!).render(<App />);

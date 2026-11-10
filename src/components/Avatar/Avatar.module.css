@@ -1,0 +1,49 @@
+.root {
+  border-radius: 50%;
+  border: 0;
+  width: 40px;
+  height: 40px;
+  font-weight: bold;
+  background-color: #707070;
+  display: flex;
+  color: #fff;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  background-position: center;
+  background-size: cover;
+}
+
+.xsmall {
+  width: 20px;
+  height: 20px;
+  font-size: 8px;
+}
+
+.small {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
+
+.large {
+  width: 80px;
+  height: 80px;
+  font-size: 2rem;
+}
+
+.yellow {
+  background-color: #fedb5e;
+}
+
+.red {
+  background-color: #f7576c;
+}
+
+.blue {
+  background-color: var(--color-data-secondary-100);
+}
+
+.green {
+  background-color: #00a63b;
+}

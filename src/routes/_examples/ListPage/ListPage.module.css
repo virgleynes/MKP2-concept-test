@@ -1,0 +1,19 @@
+/* Standard page container: comfortable max-width, token-based padding, and vertical rhythm
+   between the header / toolbar / table / pagination sections. Reuse this `.page` recipe for
+   any list page. All values are tokens — see TOKENS.md. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  max-width: 1200px;
+  padding: var(--space-large);
+}
+
+.count {
+  color: var(--color-text-secondary);
+}
+
+/* Right-align numeric columns — a list-page convention for amounts. */
+.amountCell {
+  text-align: right;
+}

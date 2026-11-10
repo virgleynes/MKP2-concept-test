@@ -1,0 +1,882 @@
+/* Borrowing power page. All visual values come from IDS design tokens. */
+
+.page {
+  /* Content column width, per design. --bp-content-max caps a full-bleed
+     section; --bp-content-inner is the measure the content itself lines up
+     to, so every section shares one left/right edge regardless of whether
+     the cap sits on the section or on its inner wrapper. */
+  --bp-content-max: 1080px;
+  --bp-gutter: var(--space-container-padding-x-large);
+  --bp-content-inner: calc(var(--bp-content-max) - var(--bp-gutter) * 2);
+
+  /* Card treatment, per design: 12px corners, light hairline border, and a
+     soft diffused shadow from the IDS elevation scale. */
+  --bp-card-radius: var(--radius-x-large);
+  --bp-card-border: var(--color-container-border-tertiary);
+  --bp-card-elevation: var(--elevation-level-3) var(--color-shadow);
+
+  /* Room a level-3 shadow (0 4px 16px) needs to paint without being clipped. */
+  --bp-card-shadow-room: var(--space-container-padding-x-small);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.placedWrap {
+  padding: 0 var(--space-container-padding-x-large);
+  max-width: var(--bp-content-max);
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  background-color: var(--color-page-background-secondary);
+  padding: var(--space-row-gap-large) var(--space-container-padding-x-large)
+    var(--space-row-gap-large);
+}
+
+.heroInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-column-gap-x-large);
+  /* stretch so the chart column matches the copy column's height */
+  align-items: stretch;
+  max-width: var(--bp-content-inner);
+  margin: 0 auto;
+}
+
+.heroCopy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-container-padding-xxx-small);
+}
+
+.oddsBadge {
+  display: flex;
+  margin-bottom: var(--space-container-padding-xx-small);
+}
+
+.amount {
+  margin: 0;
+}
+
+.delta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-component-gap-small);
+  color: var(--color-text-primary);
+  margin-top: var(--space-container-padding-xxx-small);
+}
+
+.deltaIcon {
+  color: var(--color-data-positive);
+  display: inline-flex;
+}
+
+/* The rising amount itself reads green; the trailing period stays neutral. */
+.deltaAmount {
+  color: var(--color-data-positive);
+}
+
+.heroSupport {
+  margin: 0;
+  color: var(--color-text-secondary);
+  max-width: 48ch;
+  margin-top: var(--space-container-padding-xx-small);
+}
+
+/* ---------- Trend chart ---------- */
+
+/* Fills its half of the hero: full column width, and tall enough to reach the
+   bottom of the supporting copy on the other side. */
+.chart {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+  touch-action: none;
+}
+
+.chartGridline {
+  stroke: var(--color-divider-tertiary);
+  stroke-width: 1;
+}
+
+/* V2: the stroke is painted with a horizontal gradient, so no colour here. */
+.chartLine {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- Line blend ---------- */
+
+.lineStopLead {
+  stop-color: var(--color-data-category-2);
+}
+
+.lineStopFinal {
+  stop-color: var(--color-data-positive);
+}
+
+/* ---------- Area fill ---------- */
+
+.chartArea {
+  stroke: none;
+}
+
+/* Horizontal colour blend, matching the line. */
+.areaStopLeadTop {
+  stop-color: var(--color-data-category-2);
+  stop-opacity: 0.2;
+}
+
+.areaStopFinalTop {
+  stop-color: var(--color-data-positive);
+  stop-opacity: 0.24;
+}
+
+/* Vertical mask that fades the area out towards the baseline. */
+.areaFadeSolid {
+  stop-color: var(--color-text-inverse);
+  stop-opacity: 1;
+}
+
+.areaFadeClear {
+  stop-color: var(--color-text-inverse);
+  stop-opacity: 0;
+}
+
+/* ---------- Points (revealed on hover) ---------- */
+
+/*
+ * Points stay mounted so they can transition. They fade in with the hover,
+ * then the one under the cursor grows and fills rather than snapping.
+ */
+.chartPoint {
+  fill: var(--color-container-background-primary);
+  stroke: var(--color-data-category-2);
+  stroke-width: 2;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0.6);
+  transition:
+    opacity var(--duration-fade-fast) ease-out,
+    transform var(--duration-transform-fast) cubic-bezier(0.34, 1.4, 0.64, 1),
+    fill var(--duration-fade-moderate) ease-out;
+}
+
+.chartPointVisible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.chartPointActive {
+  transform: scale(1.45);
+  fill: var(--color-data-category-2);
+}
+
+.chartPointFinal {
+  stroke: var(--color-data-positive);
+}
+
+.chartPointFinal.chartPointActive {
+  fill: var(--color-data-positive);
+}
+
+/* ---------- Hover tooltip ---------- */
+
+@keyframes tooltipAppear {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+ * The whole tooltip re-runs its fade on every point change (keyed on the
+ * active index in the markup), so it fades out and the next one fades in
+ * rather than the surface sliding across while the text jumps to keep up:
+ * SVG <text> does not interpolate x/y the way <rect> does.
+ */
+.tooltip {
+  pointer-events: none;
+  animation: tooltipAppear var(--duration-fade-moderate) ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip {
+    animation: none;
+  }
+
+  .chartPoint {
+    transition: none;
+  }
+}
+
+.tooltipRule {
+  stroke: var(--color-divider-secondary);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.tooltipSurface,
+.tooltipArrow {
+  fill: var(--color-container-background-inverse);
+}
+
+.tooltipDate {
+  fill: var(--color-text-inverse);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-4);
+  opacity: 0.8;
+}
+
+.tooltipValue {
+  fill: var(--color-text-inverse);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-3);
+  font-weight: var(--font-weight-component-bold);
+}
+
+.tooltipTrendUp,
+.tooltipTrendDown,
+.tooltipTrendFlat {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-4);
+}
+
+.tooltipTrendUp {
+  fill: var(--color-data-positive-100);
+}
+
+.tooltipTrendDown {
+  fill: var(--color-data-negative-100);
+}
+
+.tooltipTrendFlat {
+  fill: var(--color-text-inverse);
+  opacity: 0.7;
+}
+
+.chartAxisLabel {
+  /* secondary, not tertiary: tertiary falls below 4.5:1 at this text size */
+  fill: var(--color-text-secondary);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body-4);
+}
+
+.chartAxisLabelY {
+  text-anchor: end;
+}
+
+.chartAxisLabelX {
+  text-anchor: middle;
+}
+
+/* ---------- Factor cards ---------- */
+
+.factors {
+  margin-top: var(--space-row-gap-large);
+  max-width: var(--bp-content-inner);
+  margin-inline: auto;
+}
+
+/* The Carousel's own slide gap is 8px, which is tighter than this design
+   calls for. Widen it and leave room for the cards' shadow. Attribute
+   selectors here so these survive the library's hashed class names. */
+.factors
+  :global([class*='Carousel-carouselContainer'])
+  :global([class*='Carousel-slideContainer'])
+  :global(.slide) {
+  margin-right: var(--space-column-gap-small);
+}
+
+/*
+ * The Carousel clips to its container (overflow: hidden) so it can page
+ * between slides, which cut the cards' shadow off on every side. A browser
+ * also forces overflow-y to `auto` whenever overflow-x is hidden, so the
+ * clip can't simply be opened vertically without adding a scrollbar.
+ *
+ * Instead, pad the clipping container itself and pull the whole carousel
+ * out by the same amount: the cards keep the design's left edge while the
+ * shadow has room to paint inside the clip.
+ */
+/*
+ * Three things to correct on the Carousel's own layout:
+ *
+ * 1. It clips to this container (overflow: hidden) so off-screen slides stay
+ *    hidden, and its clip edges sat exactly on the cards' edges, slicing the
+ *    shadow off on all four sides. The clip has to stay, so instead grow the
+ *    container past the content column by the shadow's reach and pull it back
+ *    with a negative margin. The clip boundary then sits outside the cards.
+ * 2. That would leave the cards starting at the wider edge, so the slide
+ *    track is inset by the same amount to keep the first card aligned with
+ *    every other section on the page.
+ * 3. The chevrons are flex siblings of the slide track, so a full-width
+ *    track pushes them outside the content column entirely. Position this
+ *    container so they can be overlaid on the track edges instead.
+ */
+.factors :global([class*='Carousel-carouselContainer']) {
+  position: relative;
+  padding: var(--bp-card-shadow-room);
+  margin: calc(var(--bp-card-shadow-room) * -1);
+  /* The library fixes this element's width, so the negative margin alone
+     would shift the box instead of widening it. */
+  width: calc(100% + var(--bp-card-shadow-room) * 2);
+  box-sizing: border-box;
+}
+
+.factors :global([class*='Carousel-slideContainer']) {
+  padding: 0;
+  overflow: visible;
+}
+
+.factors :global([class*='IconControl-iconControlButton']) {
+  position: absolute;
+  top: 50%;
+  /* The library sets margin: 5px, which offsets an absolutely positioned
+     control away from true centre. */
+  margin: 0;
+  transform: translateY(-50%);
+  z-index: 1;
+  background-color: var(--color-container-background-primary);
+  border-radius: var(--radius-full);
+  box-shadow: var(--elevation-level-2) var(--color-shadow);
+}
+
+/* Offset by the container's shadow padding so the chevrons line up with the
+   content column rather than the wider clip box. */
+.factors :global([class*='Carousel-carouselLeft']) {
+  left: var(--bp-card-shadow-room);
+}
+
+.factors :global([class*='Carousel-carouselRight']) {
+  right: var(--bp-card-shadow-room);
+}
+
+.factorCard {
+  width: 272px;
+  flex-shrink: 0;
+  height: 100%;
+  flex-direction: column;
+  border-radius: var(--bp-card-radius);
+  border-color: var(--bp-card-border);
+  box-shadow: var(--bp-card-elevation);
+}
+
+/* CardContent supplies the padding; this only handles the stack. */
+.factorCardInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-container-padding-xxx-small);
+}
+
+.factorHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-column-gap-small);
+  margin-bottom: var(--space-container-padding-x-small);
+}
+
+/* A tight rule under the label text only, not a full-width divider. */
+.factorLabel {
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-divider-secondary);
+  padding-bottom: var(--space-component-inline-padding-xx-small);
+}
+
+.factorStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--space-component-gap-small);
+  white-space: nowrap;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusDotStrength {
+  background-color: var(--color-data-positive);
+}
+
+.statusDotOpportunity {
+  background-color: var(--color-data-negative);
+}
+
+/* Value and qualifier on one baseline, qualifier pushed to the right. */
+.factorFigure {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-column-gap-x-small);
+}
+
+.factorValue {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.factorMeta {
+  margin: 0;
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+/* ---------- Offers ---------- */
+
+.offers {
+  padding: var(--space-row-gap-x-large) var(--space-container-padding-x-large)
+    var(--space-row-gap-large);
+  max-width: var(--bp-content-max);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.offersHeading {
+  text-align: center;
+  margin: 0 0 var(--space-row-gap-large);
+  color: var(--color-text-primary);
+}
+
+.offerGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-column-gap-large);
+}
+
+/* IDS Card renders as a flex container that sizes to its content, so it needs
+   to be told to fill its grid track. */
+.offerCard {
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  border-radius: var(--bp-card-radius);
+  border-color: var(--bp-card-border);
+  box-shadow: var(--bp-card-elevation);
+  overflow: hidden;
+}
+
+.offerHead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-column-gap-x-small);
+  padding: var(--space-container-padding-small) var(--space-container-padding-medium);
+  border-bottom: 1px solid var(--color-divider-primary);
+}
+
+.offerBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-container-padding-xxx-small);
+  padding: var(--space-container-padding-xx-large) var(--space-container-padding-medium);
+}
+
+.offerLabel {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.offerAmount {
+  margin: 0 0 var(--space-container-padding-x-small);
+  color: var(--color-text-primary);
+}
+
+.offerCta {
+  margin-bottom: var(--space-container-padding-xx-small);
+}
+
+.offerFinePrint {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+/* Figma uses green action, not IDS visited purple (#7c00f6) */
+.learnMore,
+.learnMore:link,
+.learnMore:visited {
+  color: var(--color-action-standard) !important;
+}
+
+.learnMore:hover,
+.learnMore:focus {
+  color: var(--color-action-standard-hover) !important;
+}
+
+.learnMore:active {
+  color: var(--color-action-standard-active) !important;
+}
+
+/* ---------- Suggestion chips ---------- */
+
+/*
+ * SuggestionChipGroup (layout="row" alignment="center") lays the chips out
+ * as a centred row. Two things it leaves to us: its own gap is 6px, and each
+ * chip is a grid that reserves a second column for an optional icon, which
+ * pushes the label off-centre.
+ */
+.chips {
+  margin-top: var(--space-row-gap-large);
+}
+
+.chips :global([class*='SuggestionChipGroup-suggestion-chip-group']) {
+  gap: var(--space-column-gap-small);
+  flex-wrap: nowrap;
+}
+
+/*
+ * Per the design system spec: Action/Passive fill, no outline, with
+ * Icon/Primary and Text/Primary for the contents. The component's own
+ * default is an outlined treatment in its fallback blue, because it
+ * receives no brand theme class here.
+ */
+.chips :global([class*='SuggestionChip-suggestion-chip']) {
+  background-color: var(--color-action-passive);
+  border: none;
+  color: var(--color-text-primary);
+}
+
+.chips :global([class*='SuggestionChip-suggestion-chip']):hover {
+  background-color: var(--color-action-passive-hover);
+}
+
+.chips :global([class*='SuggestionChip-suggestion-chip']):active {
+  background-color: var(--color-action-passive-active);
+}
+
+/*
+ * The chip's label box is taller than its line-height, so an inline-flex
+ * child sat at the top of it and left extra space underneath. Match the
+ * line box to the type and centre it so the padding reads evenly.
+ */
+.chips :global([class*='SuggestionChip-label']) {
+  font-size: var(--font-size-component-small);
+  line-height: var(--line-height-component);
+}
+
+.chipInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-component-gap-medium);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-component);
+  /* Stay within the chip rather than pushing past its rounded edge when a
+     label is long for the column. */
+  min-width: 0;
+  max-width: 100%;
+}
+
+.chipText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chipInner svg {
+  color: var(--color-icon-primary);
+  flex-shrink: 0;
+}
+
+/*
+ * Soft fade on the trailing edge of the factor row, so partially visible
+ * cards dissolve instead of being sliced by the clip boundary. The
+ * Carousel's own fadeEdges prop ships no styling in this version.
+ *
+ * Done as a gradient overlay rather than a CSS mask. A mask applies to the
+ * whole subtree, which meant it either clipped the cards' shadow (every box
+ * inside the carousel is sized exactly to the cards) or faded out the
+ * chevron controls along with them. An overlay sits above the cards but
+ * below the chevrons, so both survive.
+ */
+.factors {
+  position: relative;
+}
+
+.factors::after {
+  content: '';
+  position: absolute;
+  /* The carousel is pulled out by --bp-card-shadow-room on each side to give
+     the cards' shadow room, so it paints past .factors. The overlay has to
+     reach that same edge or a strip of un-faded card shows beyond it. */
+  top: 0;
+  right: calc(var(--bp-card-shadow-room) * -1);
+  bottom: 0;
+  width: calc(96px + var(--bp-card-shadow-room));
+  pointer-events: none;
+  /* Transparent to the hero's own background, so the cards dissolve into it.
+     `transparent` rather than a zero-alpha colour keeps this token-only. */
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    var(--color-page-background-secondary)
+  );
+  z-index: 1;
+}
+
+/* Chevrons sit above the fade. */
+.factors :global([class*='IconControl-iconControlButton']) {
+  z-index: 2;
+}
+
+.promoSection {
+  padding: 0 var(--space-container-padding-x-large);
+  max-width: var(--bp-content-max);
+  margin: 0 auto var(--space-row-gap-x-large);
+  width: 100%;
+}
+
+.promoCard {
+  border-radius: var(--bp-card-radius);
+  border-color: var(--bp-card-border);
+  box-shadow: var(--bp-card-elevation);
+}
+
+.promoInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  gap: var(--space-column-gap-x-large);
+  align-items: center;
+  padding: var(--space-container-padding-medium);
+}
+
+.promoCopy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-container-padding-small);
+}
+
+.promoHeading {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.benefitList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-container-padding-xx-small);
+}
+
+.benefitItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-column-gap-x-small);
+  color: var(--color-text-primary);
+}
+
+.benefitIcon {
+  color: var(--color-data-positive);
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.promoActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-column-gap-small);
+  margin-top: var(--space-container-padding-xxx-small);
+}
+
+.promoFinePrint {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.cardArt {
+  position: relative;
+  border-radius: var(--bp-card-radius);
+  background-image: linear-gradient(
+    160deg,
+    var(--color-data-category-2-background) 0%,
+    var(--color-data-category-2) 55%,
+    #163a8f 100%
+  );
+  min-height: 207px;
+  overflow: hidden;
+}
+
+.cardArtImg {
+  position: absolute;
+  width: 180%;
+  height: 143%;
+  left: -25%;
+  top: 4%;
+  object-fit: cover;
+  object-position: 60% 40%;
+  pointer-events: none;
+}
+
+.cardArtStats {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: var(--space-container-padding-medium);
+  max-width: 160px;
+}
+
+.cardArtStat {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardArtPercent {
+  color: var(--color-text-inverse);
+  margin: 0;
+}
+
+.cardArtCaption {
+  color: var(--color-text-inverse);
+  margin: 0;
+  opacity: 0.85;
+}
+
+.cardArtRule {
+  width: 107px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* ---------- Footer / disclosures ---------- */
+
+/* Top padding keeps the back-to-top link clear of the promo card above. */
+.footerSection {
+  padding: var(--space-row-gap-medium) var(--space-container-padding-x-large)
+    var(--space-container-padding-x-large);
+  max-width: var(--bp-content-max);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.backToTop {
+  display: inline-block;
+  margin-bottom: var(--space-container-padding-medium);
+}
+
+/* Disclosures read as a plain bordered block, not a raised surface. */
+.footerCard {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--bp-card-radius);
+  border-color: var(--bp-card-border);
+  box-shadow: none;
+}
+
+.footerContact {
+  padding: var(--space-container-padding-medium);
+  border-bottom: 1px solid var(--color-divider-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-component-gap-x-small);
+}
+
+.footerContactLine {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.disclosures {
+  padding: var(--space-container-padding-medium);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-container-padding-small);
+}
+
+.legalLinks {
+  display: flex;
+  align-items: center;
+  gap: var(--space-column-gap-x-small);
+}
+
+.legalDivider {
+  color: var(--color-text-tertiary);
+}
+
+.disclosureBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-component-gap-x-small);
+}
+
+.disclosureHeading {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.disclosureText {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.footnoteList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-component-gap-x-small);
+}
+
+.footnoteItem {
+  display: flex;
+  gap: var(--space-component-gap-small);
+  color: var(--color-text-secondary);
+}
+
+.footnoteMarker {
+  flex-shrink: 0;
+  min-width: 12px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1024px) {
+  .heroInner,
+  .promoInner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .offerGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Chips stack rather than sharing a cramped row. */
+  .chips :global([class*='SuggestionChipGroup-suggestion-chip-group']) {
+    flex-direction: column;
+  }
+
+  .chips :global([class*='SuggestionChipGroup-suggestion-chip-group']) > button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero,
+  .offers,
+  .promoSection,
+  .footerSection {
+    padding-inline: var(--space-container-padding-medium);
+  }
+}

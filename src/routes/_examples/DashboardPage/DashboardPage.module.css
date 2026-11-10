@@ -1,0 +1,41 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  max-width: 1200px;
+  padding: var(--space-large);
+}
+
+/* Responsive tile grid — the canonical dashboard layout. auto-fit + minmax keeps cards a
+   sensible width and reflows by viewport without media queries. */
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-medium);
+}
+
+.metricLabel {
+  color: var(--color-text-secondary);
+}
+
+.deltaUp {
+  color: var(--color-text-link);
+}
+
+.deltaDown {
+  color: var(--color-text-secondary);
+}
+
+.chartPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  border: 1px dashed var(--color-container-border-primary);
+  border-radius: var(--radius-medium);
+}
+
+.card {
+  box-shadow: none;
+  width: 100%;
+}

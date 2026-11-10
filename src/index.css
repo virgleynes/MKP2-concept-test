@@ -1,0 +1,200 @@
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a:hover {
+  color: var(--color-text-link);
+}
+
+a:active {
+  color: var(--color-text-link);
+}
+
+a:visited {
+  color: var(--color-text-link);
+}
+
+body {
+  color: var(--color-text-primary);
+  padding: 0;
+  margin: 0;
+}
+
+textarea {
+  font-family: inherit;
+  font-weight: var(--ids-e66587, 500);
+  line-height: var(--ids-b76c7b, 1.5);
+  color: var(--ids-74e638, #393a3d);
+  border: var(--ids-445905, 1px) solid var(--ids-0c5c02, #8d9096);
+  background: var(--ids-fb6333, #ffffff);
+  display: block;
+  padding: var(--ids-2cf50a, 8px) var(--ids-8782ce, 8px) var(--ids-e2605c, 8px)
+    var(--ids-217651, 8px);
+  border-radius: var(--ids-b43d7f, 4px);
+  margin-top: var(--ids-99d141, 4px);
+  outline: none;
+  box-sizing: border-box;
+  height: var(--ids-72b161, 94px);
+  width: var(--ids-8ab42b, 100%);
+}
+
+textarea:hover,
+textarea:focus {
+  border-color: var(--ids-afeaa9, #53b700);
+  cursor: text;
+}
+
+textarea:focus {
+  box-shadow: var(--ids-4c5e3b, 0 0 0 1px #53b700);
+}
+
+select {
+  color: var(--ids-74e638, #393a3d);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  appearance: none;
+  font-weight: bold;
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  border-radius: 4px;
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.agent-gradient {
+  position: relative;
+  background: white;
+  outline: 2px solid transparent !important;
+  z-index: 0;
+}
+
+@property --bg-angle {
+  inherits: false;
+  initial-value: 0deg;
+  syntax: "<angle>";
+}
+
+@keyframes iaqbCentralSpin {
+  0% {
+    background-size: 100% 100%;
+    --bg-angle: 0deg;
+  }
+
+  100% {
+    --bg-angle: 360deg;
+  }
+}
+
+@keyframes iaqbCentralWipeOn {
+  0% {
+    clip-path: polygon(50% 50%, 50% 0, 50% 0, 50% 0, 50% 0, 50% 0, 50% 0);
+  }
+
+  20% {
+    clip-path: polygon(50% 50%, 50% 0, 100% 0, 100% 0, 100% 0, 100% 0, 100% 0);
+  }
+
+  40% {
+    clip-path: polygon(
+      50% 50%,
+      50% 0,
+      100% 0,
+      100% 100%,
+      100% 100%,
+      100% 100%,
+      100% 100%
+    );
+  }
+
+  60% {
+    clip-path: polygon(
+      50% 50%,
+      50% 0,
+      100% 0,
+      100% 100%,
+      0% 100%,
+      0% 100%,
+      0% 100%
+    );
+  }
+
+  80% {
+    clip-path: polygon(50% 50%, 50% 0, 100% 0, 100% 100%, 0% 100%, 0% 0, 0% 0);
+  }
+
+  to {
+    clip-path: polygon(50% 50%, 50% 0, 100% 0, 100% 100%, 0% 100%, 0% 0, 50% 0);
+  }
+}
+
+.agent-gradient::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 2px; /* matches border width */
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--bg-angle),
+    #00d0e0,
+    #c5ef71,
+    #00a63b,
+    #009eac,
+    #00d0e0,
+    #236cff,
+    #00d0e0
+  );
+  /* Mask out the inner area so only the border ring shows */
+  -webkit-mask: linear-gradient(#ffffff 0 0) content-box, linear-gradient(#ffffff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.agent-gradient-spin::before {
+  opacity: 1;
+  animation: iaqbCentralSpin var(--spinDuration, 2500ms) infinite linear;
+}
+
+.agent-gradient-pulse::before {
+  animation: agent-border-draw 1s ease-out forwards;
+  inset: -2px;
+  opacity: 0;
+}
+
+.agent-gradient-loading::before {
+  opacity: 1;
+  animation: iaqbCentralSpin var(--spinDuration, 2500ms) infinite linear,
+    iaqbCentralWipeOn 0.6s ease forwards;
+}
+
+/* One-shot animation trigger */
+.agent-gradient-pulse:hover::before {
+  animation: agent-border-draw 1s ease-out forwards;
+  opacity: 100%;
+}
+
+@keyframes agent-border-draw {
+  0% {
+    background-position: 0% 0%;
+    opacity: 0;
+  }
+  50% {
+    background-position: 300% 100%;
+    opacity: 100%;
+  }
+
+  100% {
+    background-position: 600% 0%;
+    opacity: 0;
+  }
+}

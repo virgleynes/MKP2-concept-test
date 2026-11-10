@@ -1,0 +1,15 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  /* Vertical rhythm between top-level page sections (banner, cards, toolbar,
+     table, pagination) — the same recipe the list-page archetype documents. */
+  gap: var(--space-large);
+  padding: var(--space-medium) var(--space-large);
+}
